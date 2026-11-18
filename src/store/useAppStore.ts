@@ -26,6 +26,7 @@ interface AppState {
   isTagModalOpen: boolean;
   isOutboxModalOpen: boolean;
   isShortcutsModalOpen: boolean;
+  deleteConfirmation: DeleteConfirmation | null;
 
   // Actions
   setActiveView: (view: MainView) => void;
@@ -42,7 +43,17 @@ interface AppState {
   setTagModalOpen: (open: boolean) => void;
   setOutboxModalOpen: (open: boolean) => void;
   setShortcutsModalOpen: (open: boolean) => void;
+  requestDeleteConfirmation: (confirmation: Omit<DeleteConfirmation, 'resolve'>) => Promise<boolean>;
+  resolveDeleteConfirmation: (confirmed: boolean) => void;
   resetFilters: () => void;
+}
+
+interface DeleteConfirmation {
+  title: string;
+  description: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  resolve: (confirmed: boolean) => void;
 }
 
 // Initial theme check
@@ -72,6 +83,7 @@ export const useAppStore = create<AppState>((set) => ({
   isTagModalOpen: false,
   isOutboxModalOpen: false,
   isShortcutsModalOpen: false,
+  deleteConfirmation: null,
 
   setActiveView: (view) =>
     set({
@@ -138,6 +150,18 @@ export const useAppStore = create<AppState>((set) => ({
 
   setShortcutsModalOpen: (open) => set({ isShortcutsModalOpen: open }),
 
+  requestDeleteConfirmation: (confirmation) =>
+    new Promise<boolean>((resolve) => {
+      set({ deleteConfirmation: { ...confirmation, resolve } });
+    }),
+
+  resolveDeleteConfirmation: (confirmed) => {
+    const confirmation = useAppStore.getState().deleteConfirmation;
+    if (!confirmation) return;
+    confirmation.resolve(confirmed);
+    set({ deleteConfirmation: null });
+  },
+
   resetFilters: () =>
     set({
       activeView: 'all',
@@ -146,3 +170,12 @@ export const useAppStore = create<AppState>((set) => ({
       searchQuery: '',
     }),
 }));
+
+export const confirmDelete = (
+  options: {
+    title: string;
+    description: string;
+    confirmLabel?: string;
+    cancelLabel?: string;
+  }
+) => useAppStore.getState().requestDeleteConfirmation(options);

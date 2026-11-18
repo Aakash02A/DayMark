@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { useFolders, useTags } from '../../hooks/useData';
 import { noteService } from '../../services/noteService';
-import { useAppStore } from '../../store/useAppStore';
+import { confirmDelete, useAppStore } from '../../store/useAppStore';
 import type { EditorMode, Note } from '../../types';
 
 interface MarkdownEditorProps {
@@ -128,8 +128,13 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note }) => {
   };
 
   const handleDelete = async () => {
-    if (window.confirm('Delete this note permanently?')) {
-      await noteService.delete(note.id);
+    const confirmed = await confirmDelete({
+      title: 'Permanently delete note?',
+      description: 'This action cannot be undone.',
+      confirmLabel: 'Delete Permanently',
+    });
+    if (confirmed) {
+      await noteService.permanentDeleteNote(note.id);
       setActiveItem(null, null);
     }
   };

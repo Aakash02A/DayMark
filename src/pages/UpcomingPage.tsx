@@ -8,6 +8,7 @@ import { TaskForm } from '../components/tasks/TaskForm';
 import { useTasks } from '../hooks/useTasks';
 import { useTaskCompletionConfirmation } from '../hooks/useTaskCompletionConfirmation';
 import type { Task } from '../types';
+import { confirmDelete } from '../store/useAppStore';
 
 export const UpcomingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -41,7 +42,12 @@ export const UpcomingPage: React.FC = () => {
 
   const handleDeleteTask = async (e: React.MouseEvent, task: Task) => {
     e.stopPropagation();
-    if (window.confirm(`Move task "${task.title}" to trash?`)) {
+    const confirmed = await confirmDelete({
+      title: 'Move task to Trash?',
+      description: `"${task.title}" will be moved to Trash. You can restore it later.`,
+      confirmLabel: 'Move to Trash',
+    });
+    if (confirmed) {
       await softDeleteTask(task.id);
     }
   };

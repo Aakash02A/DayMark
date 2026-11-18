@@ -10,7 +10,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useFolders, useNotes, useTasks } from '../hooks/useData';
 import { folderService } from '../services/folderService';
-import { useAppStore } from '../store/useAppStore';
+import { confirmDelete, useAppStore } from '../store/useAppStore';
 
 export const FoldersPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,7 +21,12 @@ export const FoldersPage: React.FC = () => {
 
   const handleDeleteFolder = async (e: React.MouseEvent, folderId: string) => {
     e.stopPropagation();
-    if (window.confirm('Delete folder? Contained notes and tasks will be moved to Uncategorized.')) {
+    const confirmed = await confirmDelete({
+      title: 'Delete folder?',
+      description: 'Contained notes and tasks will be moved to Uncategorized.',
+      confirmLabel: 'Delete Folder',
+    });
+    if (confirmed) {
       await folderService.delete(folderId);
     }
   };

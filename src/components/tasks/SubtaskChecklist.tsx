@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { GripVertical, Trash2 } from 'lucide-react';
 import type { Subtask } from '../../types';
+import { confirmDelete } from '../../store/useAppStore';
 
 interface SubtaskChecklistProps {
   subtasks: Subtask[];
@@ -229,7 +230,14 @@ export const SubtaskChecklist: React.FC<SubtaskChecklistProps> = ({
           </div>
           <button
             type="button"
-            onClick={() => onRemove(subtask.id)}
+            onClick={async () => {
+              const confirmed = await confirmDelete({
+                title: 'Remove subtask?',
+                description: `"${subtask.title}" will be removed from this task.`,
+                confirmLabel: 'Remove Subtask',
+              });
+              if (confirmed) onRemove(subtask.id);
+            }}
             aria-label={`Remove ${subtask.title}`}
             title="Remove subtask"
             className="p-1 text-slate-400 hover:text-red-500"

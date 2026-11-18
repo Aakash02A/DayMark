@@ -12,6 +12,7 @@ import { ConflictDialog } from '../sync/ConflictDialog';
 import { OfflineIndicator } from '../pwa/OfflineIndicator';
 import { PWAUpdatePrompt } from '../pwa/PWAUpdatePrompt';
 import { NavigationSidebar } from '../sidebar/NavigationSidebar';
+import { DeleteConfirmationDialog } from '../common/DeleteConfirmationDialog';
 
 export const AppLayout: React.FC = () => {
   const location = useLocation();
@@ -136,6 +137,7 @@ export const AppLayout: React.FC = () => {
       <ConflictDialog />
       <OfflineIndicator />
       <PWAUpdatePrompt />
+      <DeleteConfirmationDialog />
     </div>
   );
 };

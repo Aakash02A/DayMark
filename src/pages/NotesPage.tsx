@@ -7,6 +7,7 @@ import { NoteList } from '../components/notes/NoteList';
 import { useFolders, useTags } from '../hooks/useData';
 import { useNotes } from '../hooks/useNotes';
 import type { Note } from '../types';
+import { confirmDelete } from '../store/useAppStore';
 
 export const NotesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -56,7 +57,12 @@ export const NotesPage: React.FC = () => {
 
   const handleDeleteNote = async (e: React.MouseEvent, note: Note) => {
     e.stopPropagation();
-    if (window.confirm(`Move "${note.title || 'Untitled Note'}" to trash?`)) {
+    const confirmed = await confirmDelete({
+      title: 'Move note to Trash?',
+      description: `"${note.title || 'Untitled Note'}" will be moved to Trash. You can restore it later.`,
+      confirmLabel: 'Move to Trash',
+    });
+    if (confirmed) {
       await softDeleteNote(note.id);
     }
   };

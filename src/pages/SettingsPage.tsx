@@ -31,7 +31,7 @@ import {
   type ProductivityCalendarPreferences,
   type TaskSortBy,
 } from '../schemas/settings.schema';
-import { useAppStore } from '../store/useAppStore';
+import { confirmDelete, useAppStore } from '../store/useAppStore';
 import { getStorageEstimate, type StorageEstimateResult } from '../utils/network.utils';
 
 export const SettingsPage: React.FC = () => {
@@ -122,7 +122,12 @@ export const SettingsPage: React.FC = () => {
   };
 
   const handlePurgeTrash = async () => {
-    if (window.confirm('Permanently purge soft-deleted items from trash to free up space?')) {
+    const confirmed = await confirmDelete({
+      title: 'Permanently delete Trash items?',
+      description: 'Soft-deleted notes and tasks will be permanently removed. This action cannot be undone.',
+      confirmLabel: 'Purge Trash',
+    });
+    if (confirmed) {
       const deletedNotes = await notesService.getNotes({ includeDeleted: true });
       const deletedTasks = await tasksService.getTasks({ includeDeleted: true });
 

@@ -15,7 +15,7 @@ import { useFolders, useNotes, useTags } from '../../hooks/useData';
 import { TaskCompletionDialog } from './TaskCompletionDialog';
 import { useTaskCompletionConfirmation } from '../../hooks/useTaskCompletionConfirmation';
 import { taskService } from '../../services/taskService';
-import { useAppStore } from '../../store/useAppStore';
+import { confirmDelete, useAppStore } from '../../store/useAppStore';
 import type { Task, TaskPriority } from '../../types';
 
 interface TaskDetailViewProps {
@@ -115,7 +115,12 @@ export const TaskDetailView: React.FC<TaskDetailViewProps> = ({ task }) => {
   };
 
   const handleDelete = async () => {
-    if (window.confirm('Delete this task?')) {
+    const confirmed = await confirmDelete({
+      title: 'Move task to Trash?',
+      description: 'This task will be moved to Trash. You can restore it later.',
+      confirmLabel: 'Move to Trash',
+    });
+    if (confirmed) {
       await taskService.delete(task.id);
       setActiveItem(null, null);
     }

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useNotes, useTasks } from '../hooks/useData';
 import { noteService } from '../services/noteService';
 import { taskService } from '../services/taskService';
+import { confirmDelete } from '../store/useAppStore';
 
 export const ArchivePage: React.FC = () => {
   const navigate = useNavigate();
@@ -23,14 +24,24 @@ export const ArchivePage: React.FC = () => {
   };
 
   const handleDeleteNote = async (noteId: string) => {
-    if (window.confirm('Delete note permanently?')) {
-      await noteService.delete(noteId);
+    const confirmed = await confirmDelete({
+      title: 'Permanently delete note?',
+      description: 'This action cannot be undone.',
+      confirmLabel: 'Delete Permanently',
+    });
+    if (confirmed) {
+      await noteService.permanentDeleteNote(noteId);
     }
   };
 
   const handleDeleteTask = async (taskId: string) => {
-    if (window.confirm('Delete task permanently?')) {
-      await taskService.delete(taskId);
+    const confirmed = await confirmDelete({
+      title: 'Permanently delete task?',
+      description: 'This action cannot be undone.',
+      confirmLabel: 'Delete Permanently',
+    });
+    if (confirmed) {
+      await taskService.permanentDeleteTask(taskId);
     }
   };
 

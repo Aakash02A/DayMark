@@ -45,6 +45,7 @@ import {
 } from '../services/settings.service';
 import type { ProductivityCalendarPreferences } from '../schemas/settings.schema';
 import { tasksService } from '../services/tasks.service';
+import { confirmDelete } from '../store/useAppStore';
 import type {
   CreateTaskInput,
   Tag,
@@ -957,7 +958,12 @@ export const DashboardPage: React.FC = () => {
                       }}
                       onDelete={async (event) => {
                         event.stopPropagation();
-                        await tasksService.softDeleteTask(task.id);
+                        const confirmed = await confirmDelete({
+                          title: 'Move task to Trash?',
+                          description: `"${task.title}" will be moved to Trash. You can restore it later.`,
+                          confirmLabel: 'Move to Trash',
+                        });
+                        if (confirmed) await tasksService.softDeleteTask(task.id);
                       }}
                     />
                   ))}

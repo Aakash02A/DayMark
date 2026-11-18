@@ -13,6 +13,7 @@ import { useTaskCompletionConfirmation } from '../hooks/useTaskCompletionConfirm
 import type { Task, TaskPriority, TaskStatus } from '../types';
 import { settingsService } from '../services/settings.service';
 import type { TaskSortBy } from '../schemas/settings.schema';
+import { confirmDelete } from '../store/useAppStore';
 
 export const TasksPage: React.FC = () => {
   const navigate = useNavigate();
@@ -80,7 +81,12 @@ export const TasksPage: React.FC = () => {
 
   const handleDeleteTask = async (e: React.MouseEvent, task: Task) => {
     e.stopPropagation();
-    await softDeleteTask(task.id);
+    const confirmed = await confirmDelete({
+      title: 'Move task to Trash?',
+      description: `"${task.title}" will be moved to Trash. You can restore it later.`,
+      confirmLabel: 'Move to Trash',
+    });
+    if (confirmed) await softDeleteTask(task.id);
   };
 
   const handleResetFilters = () => {

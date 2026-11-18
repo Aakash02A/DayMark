@@ -17,6 +17,7 @@ import { useNote } from '../hooks/useNotes';
 import { useTask, useTasks } from '../hooks/useTasks';
 import { useTaskCompletionConfirmation } from '../hooks/useTaskCompletionConfirmation';
 import type { TaskPriority, TaskStatus } from '../types';
+import { confirmDelete } from '../store/useAppStore';
 
 export const TaskDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -86,7 +87,12 @@ export const TaskDetailsPage: React.FC = () => {
   };
 
   const handleDeleteTask = async () => {
-    if (window.confirm(`Delete task "${task.title}"?`)) {
+    const confirmed = await confirmDelete({
+      title: 'Move task to Trash?',
+      description: `"${task.title}" will be moved to Trash. You can restore it later.`,
+      confirmLabel: 'Move to Trash',
+    });
+    if (confirmed) {
       await softDeleteTask(task.id);
       navigate('/tasks');
     }

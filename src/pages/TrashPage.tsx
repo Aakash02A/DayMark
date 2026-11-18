@@ -6,6 +6,7 @@ import { db } from '../db/database';
 import { notesService } from '../services/notes.service';
 import { taskService } from '../services/taskService';
 import type { Note, Task } from '../types';
+import { confirmDelete } from '../store/useAppStore';
 
 export const TrashPage: React.FC = () => {
   const deletedNotes = useLiveQuery(
@@ -25,7 +26,12 @@ export const TrashPage: React.FC = () => {
   };
 
   const handlePurgeNote = async (noteId: string) => {
-    if (window.confirm('Permanently delete this note? This cannot be undone.')) {
+    const confirmed = await confirmDelete({
+      title: 'Permanently delete note?',
+      description: 'This action cannot be undone.',
+      confirmLabel: 'Delete Permanently',
+    });
+    if (confirmed) {
       await notesService.permanentDeleteNote(noteId);
     }
   };
@@ -35,18 +41,28 @@ export const TrashPage: React.FC = () => {
   };
 
   const handlePurgeTask = async (taskId: string) => {
-    if (window.confirm('Permanently delete this task? This cannot be undone.')) {
-      await taskService.delete(taskId);
+    const confirmed = await confirmDelete({
+      title: 'Permanently delete task?',
+      description: 'This action cannot be undone.',
+      confirmLabel: 'Delete Permanently',
+    });
+    if (confirmed) {
+      await taskService.permanentDeleteTask(taskId);
     }
   };
 
   const handleEmptyTrash = async () => {
-    if (window.confirm(`Permanently purge all ${totalCount} items from Trash? This cannot be undone.`)) {
+    const confirmed = await confirmDelete({
+      title: `Permanently delete ${totalCount} items?`,
+      description: 'Everything in Trash will be permanently deleted. This action cannot be undone.',
+      confirmLabel: 'Empty Trash',
+    });
+    if (confirmed) {
       for (const note of deletedNotes) {
         await notesService.permanentDeleteNote(note.id);
       }
       for (const task of deletedTasks) {
-        await taskService.delete(task.id);
+        await taskService.permanentDeleteTask(task.id);
       }
     }
   };
